@@ -1,10 +1,12 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 
+
 const url = 'https://ed.fandom.com/wiki/Category:Scripts';
 const titles = [];
 const people = [];
 const quotes = [];
+const obj = {};
 
 async function getTitles(url){
   try{
@@ -60,17 +62,44 @@ async function getTitles(url){
           });
 
         }
-        console.log(people.length);
-        console.log(quotes.length);
+
+        let counter = 0;
+        let peopleCounter = 0;
+
+        for(let i = 0; i < quotes.length; i++){
+          if(people[i] === undefined){
+            obj[`unknown${counter}`] = quotes[i];
+            counter++;
+          } else {
+            obj[`${people[i]}${peopleCounter}`] = quotes[i];
+            peopleCounter++;
+          }
+        }
+        return obj;
+   
       } catch(error){
         console.error(error);
       }
     }
-    getQuotes(titles);
-
+    const data = await getQuotes(titles);
+    return data;
   } catch(error){
     console.error(error);
   }
 };
 
-getTitles(url);
+getTitles(url).then(res => {
+  console.log('HELLO');
+}).catch(error => {
+  console.error('ERROR!!');
+});
+
+// const things = getTitles(url);
+
+
+
+
+
+
+
+
