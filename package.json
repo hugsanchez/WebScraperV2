@@ -16,6 +16,7 @@
     "node": "^18.13.0"
   },
   "devDependencies": {
+    "csvjson": "^5.1.0",
     "nodemon": "^2.0.20"
   }
 }

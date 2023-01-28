@@ -1,12 +1,15 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
-
+const csvjson = require('csvjson');
+const fs = require('fs');
 
 const url = 'https://ed.fandom.com/wiki/Category:Scripts';
 const titles = [];
 const people = [];
 const quotes = [];
-const obj = {};
+const test = [];
+const fields = ['Character', 'Line'];
+const opts = {fields};
 
 async function getTitles(url){
   try{
@@ -36,7 +39,7 @@ async function getTitles(url){
 
     async function getQuotes(titles){
       try{
-        for(let i = 0; i < 1; i++){
+        for(let i = 133; i < titles.length; i++){
           const test = titles[i];
           let scriptURL = `https://ed.fandom.com${test.link}`;
 
@@ -46,20 +49,27 @@ async function getTitles(url){
           const paragrah = $('p');
           const person = $('b');
 
-          // paragrah.each(function(){
-          //   text = $(this).html().split('<br>');
-          //   console.log(text);
-          // });
-          person.each(function(){
-            char = $(this).text();
-            people.push(char);
-;          });
-          paragrah.contents().each(function(i, element){
-    
-            if(element.nodeType === 3){
-              quotes.push($(element).toString().trim())
+          paragrah.each(function(){
+            text = $(this).html().split('<br>');
+            
+            for(let i = 0; i < text.length; i++){
+              let charLine = text[i].split('</b>');
+              
+              if(charLine.length === 2){
+                quotes.push(charLine);
+              }
             }
           });
+//           person.each(function(){
+//             char = $(this).text();
+//             people.push(char);
+// ;          });
+//           paragrah.contents().each(function(i, element){
+    
+//             if(element.nodeType === 3){
+//               quotes.push($(element).toString().trim())
+//             }
+//           });
 
         }
 
@@ -67,15 +77,15 @@ async function getTitles(url){
         let peopleCounter = 0;
 
         for(let i = 0; i < quotes.length; i++){
-          if(people[i] === undefined){
-            obj[`unknown${counter}`] = quotes[i];
-            counter++;
-          } else {
-            obj[`${people[i]}${peopleCounter}`] = quotes[i];
-            peopleCounter++;
-          }
+          const obj = {};
+          const [char, line] = quotes[i];
+
+          obj['character'] = `${char}${counter}`;
+          obj['line'] = line;
+          test.push(obj);
+          counter++;
         }
-        return obj;
+        return test;
    
       } catch(error){
         console.error(error);
@@ -89,7 +99,19 @@ async function getTitles(url){
 };
 
 getTitles(url).then(res => {
-  console.log('HELLO');
+  // const csvData = csvjson.toCSV(res, {
+  //   headers: 'key'
+  // });
+
+  // fs.writeFile('./edTestData.csv', csvData, (err) => {
+  //   if(err){
+  //     console.log(err);
+  //     throw new Error(err);
+  //   }
+  //   console.log('Converted Successfully!');
+  // })
+  console.log('HELLo')
+
 }).catch(error => {
   console.error('ERROR!!');
 });
